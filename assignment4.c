@@ -6,6 +6,7 @@
 
 typedef struct
 {
+    unsigned course_Number;
     char course_Name[MAX_COURSE_NAME_LENGTH + 1];
     char course_Sched[4];
     unsigned course_Size;
@@ -14,12 +15,56 @@ typedef struct
 
 void create_course_record(COURSE *courses, int *num_courses)
 {
-    FILE *fp = fopen(COURSE_FILENAME, "ab"); //open in binary append mode
+    FILE *fp = fopen(COURSE_FILENAME, "ab"); // open in binary append mode
     if (!fp)
     {
         printf("Error opening file.\n");
         return;
     }
+
+    // Get user input
+    int course_number;
+    char course_name[MAX_COURSE_NAME_LENGTH + 1]; //+1 for NULL terminator
+    char course_sched[4];
+    unsigned course_hours, course_enrollment;
+
+    printf("Enter course number: ");
+    scanf("%d", &course_number);
+    printf("Enter course name: ");
+    getchar(); // handle last newline character
+    fgets(course_name, MAX_COURSE_NAME_LENGTH + 1, stdin);
+    printf("Enter course schedule (MWF or TR): ");
+    scanf("%s", course_sched);
+    printf("Enter course credit hours: ");
+    scanf("%u", &course_hours);
+    printf("Enter course enrollment: ");
+    scanf("%u", &course_enrollment);
+
+    // Check if course already exists
+    int i;
+    for (i = 0; i < *num_courses; i++)
+    {
+        if (courses[i].course_Number == course_number)
+        {
+            printf("ERROR: course already exists\n");
+            fclose(fp);
+            return;
+        }
+    }
+    // Create new course record and write to file
+    COURSE new_course = {0};
+    new_course.course_Number = course_number;
+    strncpy(new_course.course_Name, course_name, MAX_COURSE_NAME_LENGTH);
+    strncpy(new_course.course_Sched, course_sched, 4);
+    new_course.course_Hours = course_hours;
+    new_course.course_Size = course_enrollment;
+    fwrite(&new_course, sizeof(COURSE), 1, fp);
+
+    // Update courses array and num_courses
+    courses[*num_courses] = new_course;
+    (*num_courses)++;
+
+    fclose(fp);
 }
 
 void update_course_record(COURSE *courses, int num_courses)
