@@ -4,16 +4,16 @@
 #define MAX_COURSE_NAME_LENGTH 83
 #define COURSE_FILENAME "courses.dat"
 
-typedef struct
+typedef struct COURSE
 {
     unsigned course_Number;
     char course_Name[MAX_COURSE_NAME_LENGTH + 1];
     char course_Sched[4];
     unsigned course_Size;
     unsigned course_Hours;
-} COURSE;
+} Course;
 
-void create_course_record(COURSE *courses, int *num_courses)
+void create_course_record(Course *courses, int *num_courses)
 {
     FILE *fp = fopen(COURSE_FILENAME, "ab"); // open in binary append mode
     if (!fp)
@@ -52,13 +52,13 @@ void create_course_record(COURSE *courses, int *num_courses)
         }
     }
     // Create new course record and write to file
-    COURSE new_course = {0};
+    Course new_course;
     new_course.course_Number = course_number;
     strncpy(new_course.course_Name, course_name, MAX_COURSE_NAME_LENGTH);
     strncpy(new_course.course_Sched, course_sched, 4);
     new_course.course_Hours = course_hours;
     new_course.course_Size = course_enrollment;
-    fwrite(&new_course, sizeof(COURSE), 1, fp);
+    fwrite(&new_course, sizeof(Course), 1, fp);
 
     // Update courses array and num_courses
     courses[*num_courses] = new_course;
@@ -67,17 +67,57 @@ void create_course_record(COURSE *courses, int *num_courses)
     fclose(fp);
 }
 
-void update_course_record(COURSE *courses, int num_courses)
+void update_course_record(Course *courses, int num_courses)
 {
-    // Handle update course record option
+    int course_num;
+    Course updated_course;
+
+    printf("Enter course number to update: ");
+    scanf("%d", &course_num);
+
+
 }
 
-void read_course_record(COURSE *courses, int num_courses)
+void read_course_record(Course *courses, int num_courses)
 {
-    // Handle read course record option
+    int course_number, i;
+
+    printf("Enter a CS course number: ");
+    scanf("%d", &course_number);
+
+    for (i = 0; i < num_courses; i++) {
+        if (i == course_number) {
+            printf("Course number: %d\n", i);
+            printf("Course name: %s\n", courses[i].course_Name);
+            printf("Scheduled days: %s\n", courses[i].course_Sched);
+            printf("Credit hours: %u\n", courses[i].course_Hours);
+            printf("Enrolled students: %u\n", courses[i].course_Size);
+            return;
+        }
+    }
+
+    printf("ERROR: course not found\n");
+}
+Course* read_course_file(int* num_courses) {
+    FILE* fp = fopen(COURSE_FILENAME, "rb");
+    if (!fp) {
+        printf("Error opening file.\n");
+        return NULL;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    *num_courses = file_size / sizeof(Course);
+    Course* courses = malloc(*num_courses * sizeof(Course));
+    fread(courses, sizeof(Course), *num_courses, fp);
+
+    fclose(fp);
+    return courses;
 }
 
-void delete_course_record(COURSE *courses, int *num_courses)
+void delete_course_record(Course *courses, int *num_courses)
 {
     // Handle delete course record option
 }
@@ -85,12 +125,12 @@ void delete_course_record(COURSE *courses, int *num_courses)
 int main()
 {
 
-    COURSE *courses;
+    Course *courses;
     int num_courses;
     char menu_option;
 
     courses = read_course_file();
-    num_courses = sizeof(*courses) / sizeof(COURSE);
+    num_courses = sizeof(*courses) / sizeof(Course);
 
     printf("Enter one of the following actions or press CTRL-D to exit.\n");
     printf("C - create a new course record\n");
