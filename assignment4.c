@@ -153,6 +153,7 @@ void read_course_record(FILE *fp, Course *courses, int num_courses)
 
 Course *read_course_file(FILE *fp, int *num_courses)
 {
+    //Check for file
     if (!fp)
     {
         printf("Error opening file.\n");
@@ -162,7 +163,8 @@ Course *read_course_file(FILE *fp, int *num_courses)
     fseek(fp, 0, SEEK_SET); // move to the beginning of the file
     int count = 0;
     Course buff = {0};
-    while (fread(&buff, sizeof(Course), 1, fp) == 1)
+     
+    while (fread(&buff, sizeof(Course), 1, fp) == 1)//Determine number of courses
     {
         count++;
     }
@@ -217,6 +219,11 @@ int main(int argc, char *argv[])
     num_courses = 0;
 
     FILE *fp = fopen(argv[1], "rb");
+    if(fp == NULL)
+    {
+        printf("Error opening file.\n");
+        return 1;
+    }
     if (argc < 2)
     {
         printf("Usage: %s filename\n", argv[0]);
@@ -224,7 +231,7 @@ int main(int argc, char *argv[])
     }
 
     // num_courses = sizeof(*courses) / sizeof(Course);
-    courses = read_course_file(&num_courses);
+    courses = read_course_file(fp, &num_courses);
 
     printf("Enter one of the following actions or press CTRL-D to exit.\n");
     printf("C - create a new course record\n");
@@ -238,15 +245,15 @@ int main(int argc, char *argv[])
         {
         case 'C':
         case 'c':
-            create_course_record(courses, &num_courses);
+            create_course_record(fp, courses, &num_courses);
             break;
         case 'U':
         case 'u':
-            update_course_record(courses, num_courses);
+            update_course_record(courses, num_courses, fp);
             break;
         case 'R':
         case 'r':
-            read_course_record(courses, num_courses);
+            read_course_record(fp, courses, num_courses);
             break;
         case 'D':
         case 'd':
