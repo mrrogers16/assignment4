@@ -161,7 +161,7 @@ Course *read_course_file(FILE *fp, int *num_courses)
     }
 
     fseek(fp, 0, SEEK_SET); // move to the beginning of the file
-    int count = 0;
+    int count = 0; //initialize count which will denote the number of structs in the binary file
     Course buff = {0};
      
     while (fread(&buff, sizeof(Course), 1, fp) == 1)//Determine number of courses
