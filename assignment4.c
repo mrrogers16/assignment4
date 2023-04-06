@@ -122,35 +122,35 @@ void update_course_record(Course *courses, int num_courses, FILE *fp)
     printf("ERROR: course not found\n");
 }
 
-// void read_course_record(FILE *fp, Course *courses, int num_courses)
-// {
-//     int course_number;
-//     int i = 0;
-//     printf("Enter a CS course number: ");
-//     scanf("%d", &course_number);
+void read_course_record(FILE *fp, Course *courses, int num_courses)
+{
+    int course_number;
+    int i = 0;
+    printf("Enter a CS course number: ");
+    scanf("%d", &course_number);
 
-//     fseek(fp, 0, SEEK_SET); // move cursor to beginning of file
-//     while (!feof(fp))
-//     {
-//         Course buff;
+    fseek(fp, 0, SEEK_SET); // move cursor to beginning of file
+    while (!feof(fp))
+    {
+        Course buff;
 
-//         if (fread(&buff, sizeof(Course), 1, fp) == 1)
-//         {
-//             if (buff.course_Number == course_number)
-//             {
-//                 printf("Course number: %d\n", i);
-//                 printf("Course name: %s\n", buff.course_Name);
-//                 printf("Scheduled days: %s\n", buff.course_Sched);
-//                 printf("Credit hours: %u\n", buff.course_Hours);
-//                 printf("Enrolled students: %u\n", buff.course_Size);
-//                 return;
-//             }
-//             i++;
-//         }
+        if (fread(&buff, sizeof(Course), 1, fp) == 1)
+        {
+            if (buff.course_Number == course_number)
+            {
+                printf("Course number: %d\n", i);
+                printf("Course name: %s\n", buff.course_Name);
+                printf("Scheduled days: %s\n", buff.course_Sched);
+                printf("Credit hours: %u\n", buff.course_Hours);
+                printf("Enrolled students: %u\n", buff.course_Size);
+                return;
+            }
+            i++;
+        }
 
-//         printf("ERROR: course not found\n");
-//     }
-// }
+        printf("ERROR: course not found\n");
+    }
+}
 
 // void delete_course_record(FILE *fp, Course *courses, int *num_courses)
 // {
@@ -221,41 +221,16 @@ int main(int argc, char *argv[])
         {
         case 'C':
         case 'c':
-
+            create_course_record();
             break;
         case 'U':
         case 'u':
-
+            update_course_record();
             break;
         case 'R':
         case 'r':
-        {
-            int course_number;
-            int i = 0;
-            printf("Enter a CS course number: ");
-            scanf("%d", &course_number); // User input
+        read_course_record();
 
-            fseek(fp, 0, SEEK_SET); // move cursor to beginning of file
-            while (!feof(fp))
-            {
-                Course buff;
-
-                if (fread(&buff, sizeof(Course), 1, fp) == 1)
-                {
-                    if (buff.course_Number == course_number)
-                    {
-                        printf("Course number: %d\n", i);
-                        printf("Course name: %s\n", buff.course_Name);
-                        printf("Scheduled days: %s\n", buff.course_Sched);
-                        printf("Credit hours: %u\n", buff.course_Hours);
-                        printf("Enrolled students: %u\n", buff.course_Size);
-                        return;
-                    }
-                    i++;
-                }
-            }
-            printf("ERROR: course not found\n");
-        }
         break;
         case 'D':
         case 'd':

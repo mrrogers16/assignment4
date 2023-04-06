@@ -23,7 +23,6 @@ Course *read_courses(FILE *fp, int *num_courses)
 
     *num_courses = file_size / sizeof(Course);
 
-
     // Allocate memory for the Course array
     Course *courses = malloc(sizeof(Course) * (*num_courses));
     if (courses == NULL)
@@ -32,8 +31,8 @@ Course *read_courses(FILE *fp, int *num_courses)
         return NULL;
     }
 
-    fread(courses, sizeof(Course), *num_courses, fp);
-
+    while(fread(courses, sizeof(Course), *num_courses, fp) != *num_courses)
+    {
     for (i = 0; i < *num_courses; i++)
     {
         printf("Course Number: %u\n", courses[i].course_Number);
@@ -43,7 +42,7 @@ Course *read_courses(FILE *fp, int *num_courses)
         printf("Course Hours: %u\n", courses[i].course_Hours);
         printf("\n");
     }
-
+    }
     fclose(fp);
     return courses;
 }
@@ -120,3 +119,13 @@ int main()
 
 //     return 0;
 // }
+
+
+
+// %d total courses found
+// %3d: offset = %ld (%lx)
+//    Course number: %d
+//    Course name: %s
+//    Scheduled days: %s
+//    Credit hours: %u
+//    Enrolled students: %u
