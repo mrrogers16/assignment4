@@ -122,143 +122,172 @@ void update_course_record(Course *courses, int num_courses, FILE *fp)
     printf("ERROR: course not found\n");
 }
 
-void read_course_record(FILE *fp, Course *courses, int num_courses)
-{
-    int course_number;
-    int i;
-    printf("Enter a CS course number: ");
-    scanf("%d", &course_number);
-    while (fp != NULL)
-    {
-        fseek(fp, 0, SEEK_SET); // move to the beginning of the file
-        Course buff;
+// void read_course_record(FILE *fp, Course *courses, int num_courses)
+// {
+//     int course_number;
+//     int i = 0;
+//     printf("Enter a CS course number: ");
+//     scanf("%d", &course_number);
 
-        while (fread(&buff, sizeof(Course), 1, fp) == 1)
-        {
-            if (buff.course_Number == course_number)
-            {
-                printf("Course number: %d\n", i);
-                printf("Course name: %s\n", buff.course_Name);
-                printf("Scheduled days: %s\n", buff.course_Sched);
-                printf("Credit hours: %u\n", buff.course_Hours);
-                printf("Enrolled students: %u\n", buff.course_Size);
-                return;
-            }
-            i++;
-        }
+//     fseek(fp, 0, SEEK_SET); // move cursor to beginning of file
+//     while (!feof(fp))
+//     {
+//         Course buff;
 
-        printf("ERROR: course not found\n");
-    }
-}
+//         if (fread(&buff, sizeof(Course), 1, fp) == 1)
+//         {
+//             if (buff.course_Number == course_number)
+//             {
+//                 printf("Course number: %d\n", i);
+//                 printf("Course name: %s\n", buff.course_Name);
+//                 printf("Scheduled days: %s\n", buff.course_Sched);
+//                 printf("Credit hours: %u\n", buff.course_Hours);
+//                 printf("Enrolled students: %u\n", buff.course_Size);
+//                 return;
+//             }
+//             i++;
+//         }
 
-Course *read_course_file(FILE *fp, int *num_courses)
-{
-    //Check for file
-    if (!fp)
-    {
-        printf("Error opening file.\n");
-        return NULL;
-    }
+//         printf("ERROR: course not found\n");
+//     }
+// }
 
-    fseek(fp, 0, SEEK_SET); // move to the beginning of the file
-    int count = 0; //initialize count which will denote the number of structs in the binary file
-    Course buff = {0};
-     
-    while (fread(&buff, sizeof(Course), 1, fp) == 1)//Determine number of courses
-    {
-        count++;
-    }
+// void delete_course_record(FILE *fp, Course *courses, int *num_courses)
+// {
+//     int course_num, i;
 
-    *num_courses = count;
-    Course *courses = malloc(*num_courses * sizeof(Course));
-    fseek(fp, 0, SEEK_SET); // move to the beginning of the file again
-    fread(courses, sizeof(Course), *num_courses, fp);
+//     printf("Enter course number to delete: ");
+//     scanf("%d", &course_num);
 
-    return courses;
-}
+//     for (i = 0; i < *num_courses; i++)
+//     {
+//         if (courses[i].course_Number == course_num)
+//         {
+//             // Move the last course to the index being deleted
+//             courses[i] = courses[*num_courses - 1];
+//             (*num_courses)--; // Reduce the number of courses
 
-void delete_course_record(Course *courses, int *num_courses)
-{
-    int course_num, i;
+//             // Update the courses.dat file
+//             fseek(fp, 0, SEEK_SET); // Move the file pointer to the beginning of the file
+//             fwrite(courses, sizeof(Course), *num_courses, fp);
+//             printf("Course record deleted.\n");
+//             return;
+//         }
+//     }
 
-    printf("Enter course number to delete: ");
-    scanf("%d", &course_num);
-
-    for (i = 0; i < *num_courses; i++)
-    {
-        if (courses[i].course_Number == course_num)
-        {
-            // Move the last course to the index being deleted
-            courses[i] = courses[*num_courses - 1];
-            (*num_courses)--; // Reduce the number of courses
-
-            // Update the courses.dat file
-            FILE *fp = fopen(COURSE_FILENAME, "wb"); // Open in binary write mode
-            if (!fp)
-            {
-                printf("Error opening file.\n");
-                return;
-            }
-            fwrite(courses, sizeof(Course), *num_courses, fp);
-            fclose(fp);
-
-            printf("Course record deleted.\n");
-            return;
-        }
-    }
-
-    printf("ERROR: course not found\n");
-}
+//     printf("ERROR: course not found\n");
+// }
 
 int main(int argc, char *argv[])
 {
-
     Course *courses;
-    int num_courses;
+    int num_courses = 0;
     char menu_option;
-    num_courses = 0;
 
-    FILE *fp = fopen(argv[1], "rb");
-    if(fp == NULL)
-    {
-        printf("Error opening file.\n");
-        return 1;
-    }
     if (argc < 2)
     {
         printf("Usage: %s filename\n", argv[0]);
         return 1;
     }
+    FILE *fp = fopen(argv[1], "rb");
+    if (fp == NULL)
+    {
+        printf("Error opening file.\n");
+        return 1;
+    }
 
-    // num_courses = sizeof(*courses) / sizeof(Course);
-    courses = read_course_file(fp, &num_courses);
+    // ensure cursor is at beginning of file
+    fseek(fp, 0, SEEK_SET);
+    int count = 0;
+    Course buff = {0};
+
+    while (fread(&buff, sizeof(Course), 1, fp) == 1) // Determine number of courses
+    {
+        num_courses++;
+    }
+    courses = malloc(num_courses * sizeof(Course));
+    fseek(fp, 0, SEEK_SET); // move cursor to beginning of file again
+    fread(courses, sizeof(Course), num_courses, fp);
 
     printf("Enter one of the following actions or press CTRL-D to exit.\n");
     printf("C - create a new course record\n");
     printf("U - update an existing course record\n");
     printf("R - read an existing course record\n");
     printf("D - delete an existing course record\n");
-
+    int i = 0;
     while (scanf(" %c", &menu_option) == 1)
     {
         switch (menu_option)
         {
         case 'C':
         case 'c':
-            create_course_record(fp, courses, &num_courses);
+
             break;
         case 'U':
         case 'u':
-            update_course_record(courses, num_courses, fp);
+
             break;
         case 'R':
         case 'r':
-            read_course_record(fp, courses, num_courses);
-            break;
+        {
+            int course_number;
+            int i = 0;
+            printf("Enter a CS course number: ");
+            scanf("%d", &course_number); // User input
+
+            fseek(fp, 0, SEEK_SET); // move cursor to beginning of file
+            while (!feof(fp))
+            {
+                Course buff;
+
+                if (fread(&buff, sizeof(Course), 1, fp) == 1)
+                {
+                    if (buff.course_Number == course_number)
+                    {
+                        printf("Course number: %d\n", i);
+                        printf("Course name: %s\n", buff.course_Name);
+                        printf("Scheduled days: %s\n", buff.course_Sched);
+                        printf("Credit hours: %u\n", buff.course_Hours);
+                        printf("Enrolled students: %u\n", buff.course_Size);
+                        return;
+                    }
+                    i++;
+                }
+            }
+            printf("ERROR: course not found\n");
+        }
+        break;
         case 'D':
         case 'd':
-            delete_course_record(courses, &num_courses);
-            break;
+        {
+            // delete_course_record(courses, &num_courses);
+            int course_num;
+
+            printf("Enter course number to delete: ");
+            scanf("%d", &course_num);
+
+            for (i = 0; i < num_courses; i++)
+            {
+                if (courses[i].course_Number == course_num)
+                {
+                    // Move the last course to the index being deleted
+                    courses[i] = courses[num_courses - 1];
+                    (num_courses)--; // Reduce the number of courses
+
+                    // Update the courses.dat file
+                    fseek(fp, 0, SEEK_SET); // Move the file pointer to the beginning of the file
+                    fwrite(courses, sizeof(Course), num_courses, fp);
+                    printf("Course record deleted.\n");
+                    return;
+                }
+            }
+
+            printf("ERROR: course not found\n");
+            fseek(fp, 0, SEEK_SET);
+            fwrite(courses, sizeof(Course), num_courses, fp);
+        }
+        break;
+
         default:
             printf("Invalid option selected.\n");
             break;
