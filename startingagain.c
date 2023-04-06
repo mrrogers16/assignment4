@@ -16,6 +16,14 @@ typedef struct COURSE
 
 Course *read_courses(FILE *fp, int *num_courses)
 {
+    int i;
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    *num_courses = file_size / sizeof(Course);
+
+
     // Allocate memory for the Course array
     Course *courses = malloc(sizeof(Course) * (*num_courses));
     if (courses == NULL)
@@ -24,29 +32,16 @@ Course *read_courses(FILE *fp, int *num_courses)
         return NULL;
     }
 
-    // Read the course data from the file and populate the Course array
-    int i = 0;
-    char buff[MAX_BUFF_SIZE];
-    while (fgets(buff, sizeof(buff), fp))
-    {
-        if (sscanf(buff, "%u %83s %3s %u %u", &courses[i].course_Number, courses[i].course_Name, courses[i].course_Sched, &courses[i].course_Size, &courses[i].course_Hours) == 5)
-        {
-            i++;
-        }
-        else
-        {
-            printf("Error reading course data for course %d\n", i + 1);
-        }
-        if (i == num_courses)
-        {
-            break;
-        }
-    }
+    fread(courses, sizeof(Course), *num_courses, fp);
 
-    // Set the number of courses if num_courses is not NULL
-    if (num_courses != NULL)
+    for (i = 0; i < *num_courses; i++)
     {
-        num_courses = i;
+        printf("Course Number: %u\n", courses[i].course_Number);
+        printf("Course Name: %s\n", courses[i].course_Name);
+        printf("Course Schedule: %s\n", courses[i].course_Sched);
+        printf("Course Enrollment: %u\n", courses[i].course_Size);
+        printf("Course Hours: %u\n", courses[i].course_Hours);
+        printf("\n");
     }
 
     fclose(fp);
@@ -58,7 +53,6 @@ int main()
 
     Course *courses;
     int num_courses = 0;
-    char menu_option;
     int i = 0;
     int course_num;
     char course_name[MAX_COURSE_NAME_LENGTH + 1];
@@ -66,42 +60,17 @@ int main()
     unsigned course_hours, course_enrollment;
     char buff[MAX_BUFF_SIZE];
 
-    FILE *fp;
-    fp = fopen(COURSE_FILENAME, "rb");
+    FILE *fp = fopen(COURSE_FILENAME, "rb");
     if (fp == NULL)
     {
         printf("Error opening file.\n");
         return 1;
     }
 
-    // Calculate the number of courses in the file
+    courses = read_courses(fp, &num_courses);
 
-    while (fgets(buff, sizeof(buff), fp))
-    {
-        int course_num;
-        char course_name[MAX_COURSE_NAME_LENGTH + 1];
-        char course_sched[4];
-        unsigned course_hours, course_enrollment;
-        if (sscanf(buff, "%u %83s %3s %u %u", &course_num, course_name, course_sched, &course_enrollment, &course_hours) == 5)
-        {
-            num_courses++;
-        }
-        else
-        {
-            printf("Error reading course data for line %d\n", num_courses + 1);
-        }
-    }
-    courses = read_courses(fp, num_courses);
 
-    for (i = 0; i < num_courses; i++)
-    {
-        printf("Course Number: %u\n", courses[i].course_Number);
-        printf("Course Name: %s\n", courses[i].course_Name);
-        printf("Course Schedule: %s\n", courses[i].course_Sched);
-        printf("Course Enrollment: %u\n", courses[i].course_Size);
-        printf("Course Hours: %u\n", courses[i].course_Hours);
-        printf("\n");
-    }
+    free(courses);
     return 0;
 }
 //     // Allocate memory for the courses array
