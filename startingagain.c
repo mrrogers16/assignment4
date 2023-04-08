@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define MAX_SCHEDULE_SIZE 4
 #define MAX_BUFF_SIZE 4096
 #define MAX_COURSE_NAME_LENGTH 83
 #define MAX_COURSES 1024
@@ -55,7 +56,7 @@ int main()
     int i = 0;
     int course_num;
     char course_name[MAX_COURSE_NAME_LENGTH + 1];
-    char course_sched[4];
+    char course_sched[MAX_SCHEDULE_SIZE];
     unsigned course_hours, course_enrollment;
     char buff[MAX_BUFF_SIZE];
 
