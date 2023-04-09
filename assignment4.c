@@ -152,31 +152,31 @@ void read_course_record(FILE *fp, Course *courses, int num_courses)
     }
 }
 
-// void delete_course_record(FILE *fp, Course *courses, int *num_courses)
-// {
-//     int course_num, i;
+void delete_course_record(FILE *fp, Course *courses, int *num_courses)
+{
+    int course_num, i;
 
-//     printf("Enter course number to delete: ");
-//     scanf("%d", &course_num);
+    printf("Enter course number to delete: ");
+    scanf("%d", &course_num);
 
-//     for (i = 0; i < *num_courses; i++)
-//     {
-//         if (courses[i].course_Number == course_num)
-//         {
-//             // Move the last course to the index being deleted
-//             courses[i] = courses[*num_courses - 1];
-//             (*num_courses)--; // Reduce the number of courses
+    for (i = 0; i < *num_courses; i++)
+    {
+        if (courses[i].course_Number == course_num)
+        {
+            // Move the last course to the index being deleted
+            courses[i] = courses[*num_courses - 1];
+            (*num_courses)--; // Reduce the number of courses
 
-//             // Update the courses.dat file
-//             fseek(fp, 0, SEEK_SET); // Move the file pointer to the beginning of the file
-//             fwrite(courses, sizeof(Course), *num_courses, fp);
-//             printf("Course record deleted.\n");
-//             return;
-//         }
-//     }
+            // Update the courses.dat file
+            fseek(fp, 0, SEEK_SET); // Move the file pointer to the beginning of the file
+            fwrite(courses, sizeof(Course), *num_courses, fp);
+            printf("Course record deleted.\n");
+            return;
+        }
+    }
 
-//     printf("ERROR: course not found\n");
-// }
+    printf("ERROR: course not found\n");
+}
 
 int main(int argc, char *argv[])
 {
@@ -221,15 +221,15 @@ int main(int argc, char *argv[])
         {
         case 'C':
         case 'c':
-            create_course_record();
+            //create_course_record();
             break;
         case 'U':
         case 'u':
-            update_course_record();
+            //update_course_record();
             break;
         case 'R':
         case 'r':
-        read_course_record();
+        //read_course_record();
 
         break;
         case 'D':

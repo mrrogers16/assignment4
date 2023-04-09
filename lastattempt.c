@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define STD_BUFF_SIZE 100
-#define MAX_BUFF_SIZE 4096
-#define MAX_COURSE_NAME_LENGTH 83
-#define MAX_COURSES 1024
+#define STD_BUFF_SIZE 4096
 #define COURSE_FILENAME "courses.dat"
 
 typedef struct COURSE
@@ -27,6 +24,7 @@ int main(int argc, char *argv[])
     int course_read;
     int course_size;
     int seek;
+    int read;
 
     char course_name_buff[STD_BUFF_SIZE];
     char course_size_buff[STD_BUFF_SIZE];
@@ -56,24 +54,25 @@ int main(int argc, char *argv[])
         {
         case 'C':
         case 'c':
-            printf("Course number: ");
+            printf("Course number: \n");
             fgets(input, STD_BUFF_SIZE, stdin);
             sscanf(input, "%d", &course_num);
 
-            printf("Course Name: ");
-            fgets(course_name_buff, STD_BUFF_SIZE, stdin);
-            course.course_Name[strlen(course.course_Name) - 1] = 0;
+            printf("Course Name: \n");
+            fgets(course_name_buff, 84, stdin);
+            course_name_buff[strlen(course_name_buff) - 1] = '\0';
+            strcpy(course.course_Name, course_name_buff);
 
-            printf("Course Schedule: ");
-            fgets(course_schedule_buff, STD_BUFF_SIZE, stdin);
-            course.course_Sched[strlen(course.course_Sched) - 1] = 0;
+            printf("Course Schedule: \n");
+            fgets(course_schedule_buff, 5, stdin);
+            course_schedule_buff[strlen(course_schedule_buff) - 1] = '\0';
+            strcpy(course.course_Sched, course_schedule_buff);
 
-            printf("Course Hours: ");
+            printf("Course Hours: \n");
             fgets(input, STD_BUFF_SIZE, stdin);
             sscanf(input, "%d", &course.course_Hours);
 
-
-            printf("Course Enrollment: ");
+            printf("Course Enrollment: \n");
             fgets(input, STD_BUFF_SIZE, stdin);
             sscanf(input, "%d", &course.course_Size);
 
@@ -97,20 +96,72 @@ int main(int argc, char *argv[])
             printf("Success\n");
 
             break;
+        case 'U':
+        case 'u':
+            printf("Course number: \n");
+            fgets(input, STD_BUFF_SIZE, stdin);
+            sscanf(input, "%d", &course_num);
+
+            fseek(fp, course_num * sizeof(Course), SEEK_SET);
+            read = fread(&course, sizeof(Course), 1L, fp);
+
+            printf("Course name: \n");
+            fgets(input, 84, stdin);
+            if (input[0] != '\n')
+            {
+                strcpy(course.course_Name, input);
+                course.course_Name[strlen(course.course_Name) - 1] = 0;
+            }
+
+            printf("Course schedule: \n");
+            fgets(input, 5, stdin);
+            if (input[0] != '\n')
+            {
+                strcpy(course.course_Sched, input);
+                course.course_Sched[strlen(course.course_Sched) - 1] = 0;
+            }
+
+            printf("Course hours: \n");
+            fgets(input, STD_BUFF_SIZE, stdin);
+            if (input[0] != '\n')
+            {
+                sscanf(input, "%d", &course.course_Hours);
+            }
+
+            printf("Course size: \n");
+            fgets(input, STD_BUFF_SIZE, stdin);
+            if (input[0] != '\n')
+            {
+                sscanf(input, "%d", &course.course_Size);
+            }
+
+            if (!read || course.course_Hours == 0)
+            {
+                fprintf(stderr, "ERROR: course does not exist\n");
+            }
+
+            fseek(fp, course_num * sizeof(Course), SEEK_SET);
+
+            if (fwrite(&course, sizeof(Course), 1L, fp) != 1)
+            {
+                fprintf(stderr, "ERROR: fwrite failed in update\n");
+                return;
+            }
+            break;
         case 'R':
         case 'r':
-            printf("Course number: ");
+            printf("Course number: \n");
             fgets(course_number_buff, STD_BUFF_SIZE, stdin);
             course_num = (int)strtol(course_number_buff, NULL, 10);
 
             if (fseek(fp, course_num * sizeof(Course), SEEK_SET) != 0)
             {
-                printf("Error seeking file");
+                printf("Error seeking file\n");
                 return 1;
             }
             if (fread(&temp, sizeof(Course), 1L, fp) == 0)
             {
-                printf("ERROR: File not read");
+                printf("ERROR: File not read\n");
                 return 1;
             }
 
@@ -127,84 +178,31 @@ int main(int argc, char *argv[])
                 printf("ERROR: Course not found\n");
             }
             break;
-        case 'U':
-        case 'u':
-            printf("Course number: ");
-            fgets(course_number_buff, STD_BUFF_SIZE, stdin);
-            course_num = (int)strtol(course_number_buff, NULL, 10);
-
-            printf("Course Name: ");
-            fgets(course_name_buff, STD_BUFF_SIZE, stdin);
-            course.course_Name[strlen(course.course_Name) - 1] = '\0';
-
-            printf("Course Schedule: ");
-            fgets(course_schedule_buff, STD_BUFF_SIZE, stdin);
-            course.course_Sched[strlen(course.course_Sched) - 1] = '\0';
-
-            printf("Course Hours: ");
-            fgets(course_hours_buff, STD_BUFF_SIZE, stdin);
-            course.course_Hours = (int)strtol(course_hours, NULL, 10);
-
-            printf("Course Enrollment: ");
-            fgets(course_size_buff, STD_BUFF_SIZE, stdin);
-            course.course_Size = (int)strtol(course_size_buff, NULL, 10);
-            
-
-            if (fseek(fp, course_num * sizeof(Course), SEEK_SET) != 0)
-            {
-                printf("Error seeking file\n");
-                return 1;
-            }
-            fread(&temp, sizeof(Course), 1L, fp);
-            if (temp.course_Hours == 0)
-            {
-                printf("ERROR: Course not found\n");
-            }
-            if (course_name_buff == '\0')
-            {
-                strcpy(course.course_Name, temp.course_Name);
-            }
-            if (course_schedule_buff == '\0')
-            {
-                strcpy(course.course_Sched, temp.course_Sched);
-            }
-            if (course_hours == '\0')
-            {
-                course.course_Hours = temp.course_Hours;
-            }
-            if (course_size == '\0')
-            {
-                course.course_Size = temp.course_Size;
-            }
-
-            if (fread(&temp, sizeof(Course), 1L, fp) == 1L)
-            {
-                printf("ERROR: File not read");
-                return 1;
-            }
-            break;
 
         case 'D':
         case 'd':
-            printf("Enter a course number: ");
+            printf("Enter a course number: \n");
             fgets(input, STD_BUFF_SIZE, stdin);
             sscanf(input, "%d", &course_num);
-            fseek(fp, course_num * sizeof(Course), SEEK_SET);
-            if (fread(&course, sizeof(Course), 1L, fp) == 0)
+
+            seek = fseek(fp, course_num * sizeof(Course), SEEK_SET);
+
+            if (seek != 0 || fread(&course, sizeof(Course), 1, fp) == 0)
             {
-                printf("ERROR: Course does not exist.\n");
+                fprintf(stderr, "ERROR: course does not exist\n");
                 return 1;
             }
 
-            
-            if (temp.course_Hours == 0)
+            course.course_Hours = 0;
+
+            seek = fseek(fp, course_num * sizeof(Course), SEEK_SET);
+
+            if (seek != 0 || fwrite(&course, sizeof(Course), 1, fp) != 1)
             {
-                printf("ERROR: Course not found\n");
+                fprintf(stderr, "ERROR: Write failed to delete\n");
+                return 1;
             }
-            memset(&temp, 0, sizeof(Course));
-            fseek(fp, course_num * sizeof(Course), SEEK_SET);
-            fwrite(&temp, sizeof(Course), 1L, fp);
-            printf("%d, was successfully deleted\n", course_num);
+            printf("Course number %d was successfully deleted\n", course_num);
             break;
         default:
             printf("Invalid input\n");
