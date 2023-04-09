@@ -10,8 +10,7 @@
 
 typedef struct COURSE
 {
-    unsigned course_Number;
-    char course_Name[MAX_COURSE_NAME_LENGTH + 1];
+    char course_Name[84];
     char course_Sched[4];
     unsigned course_Size;
     unsigned course_Hours;
@@ -59,7 +58,7 @@ int main(int argc, char *argv[])
         case 'c':
             printf("Course number: ");
             fgets(course_number_buff, STD_BUFF_SIZE, stdin);
-            course.course_Number = (int)strtol(course_number_buff, NULL, 10);
+            course_num = (int)strtol(course_number_buff, NULL, 10);
 
             printf("Course Name: ");
             fgets(course_name_buff, STD_BUFF_SIZE, stdin);
@@ -128,7 +127,7 @@ int main(int argc, char *argv[])
         case 'u':
             printf("Course number: ");
             fgets(course_number_buff, STD_BUFF_SIZE, stdin);
-            course.course_Number = (int)strtol(course_number_buff, NULL, 10);
+            course_num = (int)strtol(course_number_buff, NULL, 10);
 
             printf("Course Name: ");
             fgets(course_name_buff, STD_BUFF_SIZE, stdin);
@@ -157,12 +156,6 @@ int main(int argc, char *argv[])
             {
                 printf("ERROR: Course not found\n");
             }
-
-            // Handle blank input and reassing values
-            if (course_num == '\0')
-            {
-                course.course_Number = temp.course_Number;
-            }
             if (course_name_buff == '\0')
             {
                 strcpy(course.course_Name, temp.course_Name);
@@ -190,7 +183,8 @@ int main(int argc, char *argv[])
         case 'D':
         case 'd':
             printf("Enter a course number: ");
-            sscanf(input + 1, "%d", &course_num);
+            fgets(input, STD_BUFF_SIZE, stdin);
+            sscanf(input, "%d", &course_num);
             if (fseek(fp, course_num * sizeof(Course), SEEK_SET) != 0)
             {
                 printf("Error seeking file\n");
