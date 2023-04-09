@@ -57,24 +57,27 @@ int main(int argc, char *argv[])
         case 'C':
         case 'c':
             printf("Course number: ");
-            fgets(course_number_buff, STD_BUFF_SIZE, stdin);
-            course_num = (int)strtol(course_number_buff, NULL, 10);
+            fgets(input, STD_BUFF_SIZE, stdin);
+            sscanf(input, "%d", &course_num);
 
             printf("Course Name: ");
             fgets(course_name_buff, STD_BUFF_SIZE, stdin);
-            course.course_Name[strlen(course.course_Name) - 1] = '\0';
+            course.course_Name[strlen(course.course_Name) - 1] = 0;
 
             printf("Course Schedule: ");
             fgets(course_schedule_buff, STD_BUFF_SIZE, stdin);
-            course.course_Sched[strlen(course.course_Sched) - 1] = '\0';
+            course.course_Sched[strlen(course.course_Sched) - 1] = 0;
 
             printf("Course Hours: ");
-            fgets(course_hours_buff, STD_BUFF_SIZE, stdin);
-            course.course_Hours = (int)strtol(course_hours, NULL, 10);
+            fgets(input, STD_BUFF_SIZE, stdin);
+            sscanf(input, "%d", &course.course_Hours);
+
 
             printf("Course Enrollment: ");
-            fgets(course_size_buff, STD_BUFF_SIZE, stdin);
-            course.course_Size = (int)strtol(course_size_buff, NULL, 10);
+            fgets(input, STD_BUFF_SIZE, stdin);
+            sscanf(input, "%d", &course.course_Size);
+
+            fseek(fp, course_num * sizeof(Course), SEEK_SET);
 
             if (fseek(fp, course_num * sizeof(Course), SEEK_SET) != 0)
             {
@@ -89,6 +92,7 @@ int main(int argc, char *argv[])
             if (fwrite(&course, sizeof(Course), 1L, fp) != 1L)
             {
                 printf("ERROR: Problem writing to file");
+                return 1;
             }
             printf("Success\n");
 
@@ -185,13 +189,14 @@ int main(int argc, char *argv[])
             printf("Enter a course number: ");
             fgets(input, STD_BUFF_SIZE, stdin);
             sscanf(input, "%d", &course_num);
-            if (fseek(fp, course_num * sizeof(Course), SEEK_SET) != 0)
+            fseek(fp, course_num * sizeof(Course), SEEK_SET);
+            if (fread(&course, sizeof(Course), 1L, fp) == 0)
             {
-                printf("Error seeking file\n");
+                printf("ERROR: Course does not exist.\n");
                 return 1;
             }
-            course_read = fread(&temp, sizeof(Course), 1L, fp);
 
+            
             if (temp.course_Hours == 0)
             {
                 printf("ERROR: Course not found\n");
